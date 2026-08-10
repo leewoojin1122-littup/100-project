@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>100일 프로젝트</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DCE0DA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="100일">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#DCE0DA;
+    --surface:#F3F5F1;
+    --ink:#141A16;
+    --muted:#77817A;
+    --line:#C3C9C0;
+    --push:#14514A;
+    --squat:#9A4A1E;
+    --run:#2B3A8F;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    font-feature-settings:"tnum" 1;
+    line-height:1.45;
+    padding:calc(20px + env(safe-area-inset-top)) 16px calc(56px + env(safe-area-inset-bottom));
+    max-width:520px;
+    margin:0 auto;
+  }
+  .tools{display:flex;gap:8px;margin-top:14px}
+  .tools button{
+    flex:1;font:inherit;font-size:12px;font-weight:700;padding:10px 8px;
+    background:transparent;color:var(--muted);
+    border:1px solid var(--line);border-radius:var(--radius);cursor:pointer;
+  }
+  .tools button:active{background:var(--surface)}
+  .tools button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .eyebrow{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin:0 0 10px;
+  }
+  .counter{display:flex;align-items:baseline;gap:8px;margin:0 0 4px}
+  .counter b{
+    font-size:76px;line-height:.82;font-weight:800;letter-spacing:-.05em;
+  }
+  .counter span{font-size:17px;font-weight:700;color:var(--muted);letter-spacing:-.02em}
+  .rate{
+    display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;
+    font-size:13px;color:var(--muted);font-weight:600;
+    border-top:1px solid var(--line);margin-top:16px;padding-top:12px;
+  }
+  .rate b{color:var(--ink);font-size:15px;font-weight:800}
+
+  section{margin-top:26px}
+  .head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:10px;
+  }
+  .head h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0;font-weight:700}
+  .head .date{font-size:13px;color:var(--muted);font-weight:600}
+
+  .marks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .mark{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 10px 10px;cursor:pointer;text-align:left;
+    font:inherit;color:var(--muted);
+    transition:background .12s,border-color .12s,color .12s;
+  }
+  .mark .name{display:block;font-size:14px;font-weight:800;letter-spacing:-.01em}
+  .mark .state{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;margin-top:22px}
+  .mark[aria-pressed="true"]{color:#fff;border-color:transparent}
+  .mark[data-k="p"][aria-pressed="true"]{background:var(--push)}
+  .mark[data-k="s"][aria-pressed="true"]{background:var(--squat)}
+  .mark[data-k="r"][aria-pressed="true"]{background:var(--run)}
+  .mark:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .notes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .notes input{
+    width:100%;font:inherit;font-size:13px;font-weight:600;text-align:center;
+    padding:8px 4px;border:1px solid var(--line);border-radius:var(--radius);
+    background:transparent;color:var(--ink);
+  }
+  .notes input::placeholder{color:var(--muted);font-weight:500}
+  .notes input:focus{outline:2px solid var(--ink);outline-offset:-1px;background:var(--surface)}
+
+  .memo{width:100%;font:inherit;font-size:13px;font-weight:600;margin-top:8px;
+    padding:9px 10px;border:1px solid var(--line);border-radius:var(--radius);
+    background:transparent;color:var(--ink);}
+  .memo::placeholder{color:var(--muted);font-weight:500}
+  .memo:focus{outline:2px solid var(--ink);outline-offset:-1px;background:var(--surface)}
+
+  .wall{display:grid;grid-template-columns:22px repeat(10,1fr);gap:4px;align-items:center}
+  .rownum{font-size:10px;color:var(--muted);font-weight:700;text-align:right;padding-right:2px}
+  .cell{
+    aspect-ratio:1;display:flex;gap:1px;padding:0;border:0;background:none;
+    cursor:pointer;border-radius:2px;
+  }
+  .cell i{flex:1;background:#CDD2CA;border-radius:1px;transition:background .12s}
+  .cell.future i{background:#D5D9D2;opacity:.5}
+  .cell i.on[data-k="p"]{background:var(--push)}
+  .cell i.on[data-k="s"]{background:var(--squat)}
+  .cell i.on[data-k="r"]{background:var(--run)}
+  .cell.sel{outline:2px solid var(--ink);outline-offset:2px}
+  .cell.today{outline:2px dashed var(--ink);outline-offset:2px}
+  .cell:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+  .legend{display:flex;gap:14px;margin-top:14px;font-size:11px;color:var(--muted);font-weight:700}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend b{width:9px;height:9px;border-radius:1px;display:block}
+
+  .status{margin-top:18px;font-size:12px;color:var(--muted);font-weight:600;min-height:16px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<p class="eyebrow">100일 프로젝트 · 6월 26일 → 10월 3일</p>
+<div class="counter"><b id="dayNum">—</b><span>일째 / 100</span></div>
+<div class="rate">
+  <span>누적 달성률 <b id="rate">—</b></span>
+  <span>완주 <b id="done">—</b></span>
+  <span>연속 <b id="streak">—</b></span>
+</div>
+
+<section>
+  <div class="head">
+    <h2 id="panelTitle">오늘</h2>
+    <span class="date" id="panelDate">—</span>
+  </div>
+  <div class="marks">
+    <button class="mark" data-k="p" aria-pressed="false"><span class="name">푸시업</span><span class="state">안 함</span></button>
+    <button class="mark" data-k="s" aria-pressed="false"><span class="name">스쿼트</span><span class="state">안 함</span></button>
+    <button class="mark" data-k="r" aria-pressed="false"><span class="name">10km</span><span class="state">안 함</span></button>
+  </div>
+  <div class="notes">
+    <input id="pc" inputmode="numeric" placeholder="개">
+    <input id="sc" inputmode="numeric" placeholder="개">
+    <input id="rc" inputmode="decimal" placeholder="km">
+  </div>
+  <input id="m" class="memo" placeholder="메모">
+</section>
+
+<section>
+  <div class="head">
+    <h2>100일</h2>
+    <span class="date">칸을 눌러 그날을 기록</span>
+  </div>
+  <div class="wall" id="wall"></div>
+  <div class="legend">
+    <span><b style="background:var(--push)"></b>푸시업</span>
+    <span><b style="background:var(--squat)"></b>스쿼트</span>
+    <span><b style="background:var(--run)"></b>10km</span>
+  </div>
+  <p class="status" id="status">불러오는 중…</p>
+  <div class="tools">
+    <button id="exportBtn">기록 복사</button>
+    <button id="importBtn">기록 붙여넣기</button>
+  </div>
+</section>
+
+<script>
+const KEY='hundred-day-log';
+const START=Date.UTC(2026,5,26);
+const DAYMS=86400000;
+const WD=['일','월','화','수','목','금','토'];
+let log={}, sel=1;
+
+const SEED={};
+for(let i=1;i<=15;i++) SEED[i]=[1,1,1];
+Object.assign(SEED,{
+  16:[0,0,0,'워터파크'],      17:[1,1,1],               18:[1,1,1],
+  19:[1,1,0,'회식'],          20:[0,0,0,'경산 출장'],    21:[1,1,1],
+  22:[1,1,0,'제헌절 육아'],    23:[1,1,1],               24:[1,1,0,'주일 여름성경학교 준비'],
+  25:[1,1,1],                26:[1,1,1],               27:[1,1,1],
+  28:[1,0,0,'피곤함'],        29:[1,1,1,'간만에 헬스장'], 30:[1,1,1],
+  31:[0,0,1,'초등부 여름성경학교'], 32:[1,0,1],           33:[1,1,1],
+  34:[0,0,0,'손가락 화상'],    35:[0,1,0,'피부과, 서울오토갤러리'],
+  36:[0,0,0,'유교전, 장례식장'], 37:[1,1,0,'넘버블럭스, 계곡'],
+  38:[1,1,0],                39:[1,1,0],               40:[1,0,0],
+  41:[1,1,0],                42:[1,0,1],               43:[1,1,1],
+  44:[1,1,0],                45:[1,1,0],               46:[1,1,1]
+});
+function seed(){
+  let added=false;
+  for(const k in SEED){
+    if(!(k in log)){
+      const [p,s,r,m]=SEED[k];
+      log[k]={p:!!p,s:!!s,r:!!r}; if(m) log[k].m=m;
+      added=true;
+    }
+  }
+  return added;
+}
+
+function dateOf(n){return new Date(START+(n-1)*DAYMS);}
+function label(n){const d=dateOf(n);return `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 (${WD[d.getUTCDay()]})`;}
+function todayNum(){
+  const t=new Date();
+  const u=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate());
+  return Math.min(100,Math.max(1,Math.round((u-START)/DAYMS)+1));
+}
+function rec(n){return log[n]||{};}
+function full(n){const r=rec(n);return r.p&&r.s&&r.r;}
+
+const store={
+  async get(k){
+    if(window.storage) return await window.storage.get(k);
+    const v=localStorage.getItem(k);
+    if(v===null) throw new Error('none');
+    return {value:v};
+  },
+  async set(k,v){
+    if(window.storage) return await window.storage.set(k,v);
+    localStorage.setItem(k,v);
+  }
+};
+
+async function load(){
+  try{
+    const res=await store.get(KEY);
+    log=res&&res.value?JSON.parse(res.value):{};
+    if(seed()) await save(); else setStatus('저장됨');
+  }catch(e){ log={}; seed(); await save(); }
+}
+async function save(){
+  try{
+    await store.set(KEY,JSON.stringify(log));
+    setStatus('저장됨 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){setStatus('저장하지 못했습니다. 잠시 후 다시 눌러보세요.');}
+}
+function setStatus(t){document.getElementById('status').textContent=t;}
+
+function render(){
+  const today=todayNum();
+  document.getElementById('dayNum').textContent=today;
+
+  let doneCount=0;
+  for(let i=1;i<=today;i++) if(full(i)) doneCount++;
+  document.getElementById('rate').textContent=Math.round(doneCount/today*100)+'%';
+  document.getElementById('done').textContent=doneCount+'/'+today+'일';
+
+  let s=0;
+  for(let i=today;i>=1;i--){ if(full(i)) s++; else if(i<today) break; }
+  document.getElementById('streak').textContent=s+'일';
+
+  document.getElementById('panelTitle').textContent = sel===today?'오늘':('DAY '+sel);
+  document.getElementById('panelDate').textContent = label(sel)+(sel===today?'':' · DAY '+sel);
+
+  const r=rec(sel);
+  document.querySelectorAll('.mark').forEach(b=>{
+    const on=!!r[b.dataset.k];
+    b.setAttribute('aria-pressed',on);
+    b.querySelector('.state').textContent=on?'완료':'안 함';
+  });
+  pc.value=r.pc||''; sc.value=r.sc||''; rc.value=r.rc||''; m.value=r.m||'';
+
+  const wall=document.getElementById('wall');
+  wall.innerHTML='';
+  for(let row=0;row<10;row++){
+    const g=document.createElement('div');
+    g.className='rownum'; g.textContent=row*10+1;
+    wall.appendChild(g);
+    for(let col=1;col<=10;col++){
+      const n=row*10+col;
+      const c=document.createElement('button');
+      c.className='cell'+(n>today?' future':'')+(n===sel?' sel':'')+(n===today&&n!==sel?' today':'');
+      c.setAttribute('aria-label','DAY '+n+' '+label(n));
+      ['p','s','r'].forEach(k=>{
+        const i=document.createElement('i');
+        i.dataset.k=k;
+        if(rec(n)[k]) i.className='on';
+        c.appendChild(i);
+      });
+      c.onclick=()=>{sel=n;render();};
+      wall.appendChild(c);
+    }
+  }
+}
+
+document.querySelectorAll('.mark').forEach(b=>{
+  b.onclick=()=>{
+    const r=log[sel]||(log[sel]={});
+    r[b.dataset.k]=!r[b.dataset.k];
+    render(); save();
+  };
+});
+['pc','sc','rc','m'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.onchange=()=>{ const r=log[sel]||(log[sel]={}); r[id]=el.value.trim(); save(); };
+});
+
+document.getElementById('exportBtn').onclick=async()=>{
+  const text=JSON.stringify(log);
+  try{ await navigator.clipboard.writeText(text); setStatus('기록을 복사했습니다. 다른 기기에서 붙여넣으세요.'); }
+  catch(e){ prompt('아래 내용을 복사하세요',text); }
+};
+document.getElementById('importBtn').onclick=()=>{
+  const text=prompt('복사한 기록을 붙여넣으세요');
+  if(!text) return;
+  try{
+    const next=JSON.parse(text);
+    if(typeof next!=='object'||Array.isArray(next)) throw new Error('bad');
+    log=next; render(); save();
+  }catch(e){ setStatus('읽을 수 없는 형식입니다. 복사한 내용을 그대로 붙여넣어 주세요.'); }
+};
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+(async()=>{ await load(); sel=todayNum(); render(); })();
+</script>
+</body>
+</html>
