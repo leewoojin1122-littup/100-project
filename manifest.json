@@ -1,7 +1,7 @@
 {
   "name": "100일 프로젝트",
   "short_name": "100일",
-  "description": "푸시업 · 스쿼트 · 10km 100일 기록",
+  "description": "푸시업 · 스쿼트 · 10km 100일 돌아보기",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
